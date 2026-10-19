@@ -2,20 +2,46 @@
 
 ## Запуск
 
-Нужны JDK 17, Maven 3.6.3 или новее и доступ к интернету.
+Нужны JDK 17, Maven 3.6.3 или новее.
 Из корня проекта выполнить:
 
 ```bash
 mvn test
 ```
 
-Команда `mvn -version` должна показывать Java 17. Если на macOS Maven
-использует другую установленную Java, выбрать JDK 17 в текущем терминале:
+## Запуск в Docker - домашнее задание №3
+
+Нужен запущенный Docker Engine (на macOS - Docker Desktop) и доступ к интернету.
+
+Из корня проекта собрать образ:
 
 ```bash
-export JAVA_HOME=$(/usr/libexec/java_home -v 17)
-mvn test
+docker build -t api-test .
 ```
+
+Во время сборки устанавливаются зависимости и компилируются тесты.
+HTTP-запросы к API выполняются при запуске контейнера:
+
+```bash
+docker run --rm api-test
+echo $?
+```
+
+Контейнер автоматически запускает `mvn -B -ntp test`. Ожидаемый результат -
+семь успешных тестов, `BUILD SUCCESS` и код завершения `0`. Результаты тестов выводятся в консоль; после завершения контейнер удаляется.
+Файл `.dockerignore` исключает из контекста сборки локальную папку `target`, служебные файлы и материалы ручных проверок.
+
+Для проверки ненулевого кода завершения запустить существующий тест успешного
+входа с заведомо неверным паролем:
+
+```bash
+docker run --rm api-test mvn -B -ntp test \
+  '-Dtest=AuthTest#shouldAccessProfileWithReceivedToken' \
+  -Dapi.password=definitely-wrong-password
+echo $?
+```
+
+В этом случае ожидаются падение проверки HTTP 200, `BUILD FAILURE` и ненулевой код завершения
 
 ## Используемые API
 
@@ -39,14 +65,6 @@ mvn test
 6. **GraphQL query:** HTTP 200, `data.hello` равен `Hello Ivan`, `errors` отсутствуют
 7. **GraphQL mutation:** HTTP 200, возвращаются непустой ID, отправленные имя
    и возраст; `errors` отсутствуют
-
-## Проверки в Postman
-
-Вручную проверены GraphQL query, mutation и subscription `Greetings`.
-Subscription выполнена через SSE с заголовком `Accept: text/event-stream`:
-получены пять событий `next` с приветствиями и событие `complete`.
-[Коллекция запросов](postman/api-testing-homework-2.postman_collection.json)
-добавлена в проект из семинара.
 
 ## Результаты
 

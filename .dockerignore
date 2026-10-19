@@ -1,0 +1,19 @@
+# Git and IDE files
+.git
+.idea
+.vscode
+**/*.iml
+
+# Local build results and macOS files
+target
+**/.DS_Store
+**/*.log
+*.zip
+
+# Local environment settings
+.env
+.env.*
+
+# Materials that are not needed to run the Java tests
+checks
+postman
