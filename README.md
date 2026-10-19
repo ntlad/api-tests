@@ -43,6 +43,24 @@ echo $?
 
 В этом случае ожидаются падение проверки HTTP 200, `BUILD FAILURE` и ненулевой код завершения
 
+## GitHub Actions
+
+Конфигурация CI находится в [.github/workflows/ci.yml](.github/workflows/ci.yml).
+Workflow `Docker API tests` автоматически запускается при `push` в любую ветку
+
+В одной задаче на Ubuntu выполняются три шага:
+
+1. Получение исходников текущего коммита через `actions/checkout`.
+2. Сборка образа командой `docker build -t api-test .`.
+3. Запуск этого же образа командой `docker run --rm api-test`.
+
+Ошибка сборки или ненулевой код завершения тестов делают задачу и весь
+workflow неуспешными. Если все семь тестов проходят, workflow завершается
+успешно.
+
+Результаты запусков доступны на вкладке
+[Actions](https://github.com/ntlad/api-tests/actions) репозитория.
+
 ## Используемые API
 
 - REST: <https://playground.nileslabs.com/api/v1>
